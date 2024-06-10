@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        input, select, button {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        #translationResult {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Translate a Word</h1>
+        <input type="text" id="wordInput" placeholder="Enter a word">
+        <select id="languageSelect">
+            <option value="ar">Arabic</option>
+            <option value="id">Indonesian</option>
+            <option value="en">English</option>
+        </select>
+        <button onclick="translateWord()">Translate</button>
+        <div id="translationResult"></div>
+    </div>
+    <script>
+        async function translateWord() {
+            const word = document.getElementById('wordInput').value;
+            const language = document.getElementById('languageSelect').value;
+            const resultDiv = document.getElementById('translationResult');
+
+            if (word.trim() === '') {
+                resultDiv.textContent = 'Please enter a word to translate.';
+                return;
+            }
+
+            // Using LibreTranslate API
+            const url = 'https://libretranslate.de/translate';
+
+            const params = {
+                q: word,
+                source: 'en', // Assuming the source language is always English
+                target: language,
+                format: 'text'
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(params)
+                });
+
+                if (!response.ok) {
+                    const errorDetails = await response.text();
+                    throw new Error(`Translation API error: ${response.status} ${response.statusText} - ${errorDetails}`);
+                }
+
+                const data = await response.json();
+                resultDiv.textContent = `Translation: ${data.translatedText}`;
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+                console.error('Error details:', error);
+            }
+        }
+    </script>
+</body>
+</html>

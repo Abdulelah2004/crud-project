@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Number Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+        #feedback {
+            width: 80%;
+            max-width: 600px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 24px;
+            height: 100px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div id="feedback">Speak your guess...</div>
+<button id="startButton">Start Guessing</button>
+
+<script>
+    const startButton = document.getElementById('startButton');
+    const feedbackDiv = document.getElementById('feedback');
+
+    // Random number between 1 and 100
+    const randomNumber = Math.floor(Math.random() * 100) + 1;
+    console.log('Secret Number:', randomNumber); // For debugging purposes
+
+    if ('webkitSpeechRecognition' in window) {
+        const recognition = new webkitSpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onresult = function(event) {
+            const speechResult = event.results[0][0].transcript;
+            const userGuess = parseInt(speechResult, 10);
+            provideFeedback(userGuess);
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error', event.error);
+        };
+
+        startButton.onclick = function() {
+            recognition.start();
+        };
+    } else {
+        alert('Your browser does not support the Web Speech API');
+    }
+
+    function provideFeedback(guess) {
+        if (isNaN(guess)) {
+            feedbackDiv.textContent = 'Please speak a valid number!';
+        } else if (guess < randomNumber) {
+            feedbackDiv.textContent = 'Too low! Try again.';
+        } else if (guess > randomNumber) {
+            feedbackDiv.textContent = 'Too high! Try again.';
+        } else {
+            feedbackDiv.textContent = 'Correct! You guessed the number!';
+        }
+    }
+</script>
+
+</body>
+</html>
